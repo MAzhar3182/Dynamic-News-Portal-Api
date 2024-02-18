@@ -13,17 +13,13 @@ const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 export const userRegistration = async (req, res) => {
   const { name, email, password, password_confirmation, tc, gender, age } = req.body;
-
   try {
     const user = await UserModel.findOne({ email: email });
-
     if (user) {
       return res.send({ "status": "Failed", "message": "Email Already Exists" });
     }
-
     const salt = await bcrypt.genSalt(12);
     const hashPassword = await bcrypt.hash(password, salt);
-
     const doc = new UserModel({
       name,
       email,
@@ -40,10 +36,8 @@ export const userRegistration = async (req, res) => {
       // Save or process the profile image as needed and store the URL/path in the database
       doc.profileImage = `data:image/jpeg;base64,${profileImageBase64}`;
     }
-
     await doc.save();
     const saved_user = await UserModel.findOne({ email: email });
-
     const token = jwt.sign(
       { userId: saved_user._id },
       process.env.JWT_SECRET_KEY,
@@ -213,9 +207,11 @@ export const getNews = async (req, res) => {
           _id: news._id,
           title: news.title,
           channel: news.channel,
+          approved:news.approved,
           description: news.description,
           category: news.category,
           person: news.person,
+          likesCount:news.likesCount,
           image: {
             url: smallImageUrl,
             contentType: news.image.contentType,
@@ -240,6 +236,24 @@ export const getNews = async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ success: false, error: 'Internal Server Error' });
+  }
+};
+// News Approved Or Reject
+export const newsAproved=async (req, res) => {
+  const { id } = req.params;
+  const { approved } = req.body;
+  try {
+    // Find the news article by ID and update the approved field
+    const updatedNews = await NewsModal.findByIdAndUpdate(id, { approved }, { new: true });
+
+    if (!updatedNews) {
+      return res.status(404).json({ message: 'News article not found' });
+    }
+
+    res.json({ message: 'Approval status updated successfully', news: updatedNews });
+  } catch (error) {
+    console.error('Error updating approval status:', error);
+    res.status(500).json({ message: 'Internal server error' });
   }
 };
 // Delete News Function
