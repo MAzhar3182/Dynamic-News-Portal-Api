@@ -7,6 +7,8 @@ const router = express.Router();
 router.use(authenticateUser);
 // Use the getUserData endpoint for authenticated routes
 router.get('/user/data', UserController.getUserData);
+// Define the route to approve a news article
+router.put('/approve-news/:id', UserController.newsAproved);
 router.get('/get-news', UserController.getNews);
 router.get('/single-news/:id', UserController.getSingleNews);
 router.get('/latest-news-title', UserController.getLatestNewsTitle);
