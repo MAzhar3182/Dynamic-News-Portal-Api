@@ -54,7 +54,16 @@ export const userRegistration = async (req, res) => {
     res.send({ "status": "Failed", "message": "Unable To Register" });
   }
 };
-
+// Get Users
+export const getUsers = async (req, res) => {
+  try {
+    const users = await UserModel.find();
+    res.status(200).json({ success: true, users });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, error: 'Internal Server Error' });
+  }
+};
 // Example API endpoint to get user data based on the token
 export const getUserData = async (req, res) => {
   try {
