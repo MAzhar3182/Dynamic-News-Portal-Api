@@ -2,7 +2,10 @@ import mongoose from "mongoose";
 const userSchema = new mongoose.Schema({
     name: { type: String, required: true, trim: true },
     description: { type: String, trim: true },
-    profileimage: { type: String },
+    profileimage: {
+        data: Buffer,
+        contentType: String,
+      },
     gender: { type: String, trim: true },
     age: { type: Number, trim: true },
     email: { type: String, required: true, trim: true },

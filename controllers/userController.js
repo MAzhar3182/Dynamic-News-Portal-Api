@@ -9,6 +9,13 @@ import Category from "../models/Category.js";
 // Sign Up Function
 import multer from 'multer';
 import moment from 'moment';
+import cloudinary from "cloudinary";
+// Configure Cloudinary
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET
+});
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 export const userRegistration = async (req, res) => {
@@ -110,7 +117,7 @@ export const userLogin = async (req, res) => {
 export const updateProfile = async (req, res) => {
   const userId = req.params._id; // Get user ID from request parameters
   const { name, email, gender, age } = req.fields; // Assuming form data is sent using formidable
-
+  const {profileimage} = req.files;
   try {
     // Check if the user exists
     const user = await UserModel.findById(userId);
@@ -131,9 +138,16 @@ export const updateProfile = async (req, res) => {
     if (age) {
       user.age = age;
     }
-    
+
+    // Handle profile image upload
+  // If there's an image, process and save it
+  if (profileimage) {
+    user.profileimage.data = fs.readFileSync(profileimage.path);
+    user.profileimage.contentType = profileimage.type;
+  }
     // Save the updated user profile
     await user.save();
+    console.log(user);
     res.status(200).json({ success: true, message: 'Profile updated successfully', user });
   } catch (error) {
     console.error(error);
@@ -382,5 +396,41 @@ export const getSingleNews = async (req, res) => {
   } catch (error) {
     console.error(error);
     return res.status(500).json({ success: false, error: 'Internal Server Error' });
+  }
+};
+// Define the API endpoint for following a news creator
+export const followPerson= async (req, res) => {
+  try {
+    const { userId, creatorId } = req.body;
+
+    // Check if both user ID and creator ID are provided
+    if (!userId || !creatorId) {
+      return res.status(400).json({ success: false, message: 'User ID and creator ID are required' });
+    }
+
+    // Find the user and the news creator by their IDs
+    const user = await UserModel.findById(userId);
+    const creator = await UserModel.findById(creatorId);
+
+    // Check if both user and creator exist
+    if (!user || !creator) {
+      return res.status(404).json({ success: false, message: 'User or creator not found' });
+    }
+
+    // Check if the user is already following the creator
+    if (user.following.includes(creatorId)) {
+      return res.status(400).json({ success: false, message: 'User is already following this creator' });
+    }
+
+    // Add the creator's ID to the user's list of followed creators
+    user.following.push(creatorId);
+
+    // Save the updated user profile
+    await user.save();
+
+    res.status(200).json({ success: true, message: 'User is now following the news creator', user });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, error: 'Internal Server Error' });
   }
 };

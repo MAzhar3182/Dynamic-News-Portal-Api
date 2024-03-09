@@ -26,7 +26,6 @@ app.use('/api', authenticateUser);
 // Load Routes
 app.use("/api/like-details",likesRoutes);
 app.use("/api/news",newsRoutes);
-
 app.listen(port, () => {
   console.log(`Server is Listening at http://localhost:${port}`);
 });
