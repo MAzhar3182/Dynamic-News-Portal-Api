@@ -5,9 +5,9 @@ const userSchema = new mongoose.Schema({
     profileimage: {
         data: Buffer,
         contentType: String,
-      },
-    gender: { type: String, trim: true },
-    age: { type: Number, trim: true },
+    },
+    gender: { type: String, trim: true }, // Make gender optional
+    age: { type: Number, trim: true }, // Make age optional
     email: { type: String, required: true, trim: true },
     password: { type: String, required: true, trim: true },
     tc: { type: Boolean, required: true }
