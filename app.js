@@ -14,12 +14,13 @@ const DATABASE_URL = process.env.DATABASE_URL;
 
 // Cors Policy
 app.use(cors({
-  origin: 'https://dynamic-news-portal-api.vercel.app', // Allow requests from this origin
+  origin: '*', // Allow requests from all origins
   methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allow these HTTP methods
   allowedHeaders: ['Content-Type', 'Authorization'], // Allow these headers
   credentials: true, // Allow cookies and credentials
   optionsSuccessStatus: 200 // Respond with 200 for preflight requests
 }));
+
 
 
 // DataBase Connection
